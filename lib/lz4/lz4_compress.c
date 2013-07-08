@@ -2,6 +2,7 @@
  * LZ4 - Fast LZ compression algorithm
  * Copyright (C) 2011-2012, Yann Collet.
  * BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
+
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
@@ -422,10 +423,10 @@ int lz4_compress(const unsigned char *src, size_t src_len,
 
 	if (src_len < LZ4_64KLIMIT)
 		out_len = lz4_compress64kctx(wrkmem, src, dst, src_len,
-				LZ4_COMPRESSBOUND(src_len));
+				lz4_compressbound(src_len));
 	else
 		out_len = lz4_compressctx(wrkmem, src, dst, src_len,
-				LZ4_COMPRESSBOUND(src_len));
+				lz4_compressbound(src_len));
 
 	if (out_len < 0)
 		goto exit;
