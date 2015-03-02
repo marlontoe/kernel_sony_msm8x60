@@ -49,10 +49,6 @@ extern void error(char *);
 #define memcpy memcpy
 #include "../../../../lib/decompress_unxz.c"
 #endif
- 
-#ifdef CONFIG_KERNEL_LZ4
-#include "../../../../lib/decompress_unlz4.c"
-#endif
 
 #ifdef CONFIG_KERNEL_LZ4
 #include "../../../../lib/decompress_unlz4.c"
