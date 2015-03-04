@@ -833,11 +833,6 @@ config MACH_SEMC_NOZOMI_OC_NO
         help
           Standard clocking for Sony Ericsson Nozomi device
 
-config MACH_SEMC_NOZOMI_OC_STANDARD
-        bool "SEMC Nozomi OC"
-        help
-          Overclocking for the Sony Ericsson Nozomi device
-
 config MACH_SEMC_NOZOMI_OC_ULTRA
         bool "SEMC Nozomi OC ULTRA"
         help
@@ -1660,6 +1655,13 @@ config FORCE_FAST_CHARGE
 	help
 	  A simple sysfs interface to force adapters that
 	  are detected as USB to charge as AC.
+
+config CPU_VOLTAGE_TABLE
+	bool "Enable CPU Voltage Table via sysfs for adjustements"
+	depends on ARCH_MSM8X60
+	default n
+	help
+	  User CPU Votlage Control
 
 if CPU_FREQ_MSM
 

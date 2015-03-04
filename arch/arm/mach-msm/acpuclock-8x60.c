@@ -50,9 +50,9 @@
 #define MAX_VDD_SC		1325000 /* uV */
 #define MAX_VDD_MEM		1325000 /* uV */
 #else
-#define MAX_VDD_SC              1350000 /* uV */
+#define MAX_VDD_SC              1400000 /* uV */
 #define MIN_VDD_SC               775000 /* uV */
-#define MAX_VDD_MEM             1350000 /* uV */
+#define MAX_VDD_MEM             1400000 /* uV */
 #endif
 #define MAX_VDD_DIG		1200000 /* uV */
 #define MAX_AXI			 310500 /* KHz */
@@ -487,16 +487,12 @@ static struct clkctl_acpu_speed acpu_freq_tbl_oc[] = {
   { {1, 1}, 1620000, ACPU_SCPLL, 0, 0, 1, 0x1E, L2(22), 1250000, 0x03006000},
   { {1, 1}, 1674000, ACPU_SCPLL, 0, 0, 1, 0x1F, L2(22), 1275000, 0x03006000},
   { {1, 1}, 1728000, ACPU_SCPLL, 0, 0, 1, 0x20, L2(22), 1300000, 0x03006000},
-#ifdef CONFIG_MACH_SEMC_NOZOMI_OC_ULTRA
   { {1, 1}, 1782000, ACPU_SCPLL, 0, 0, 1, 0x21, L2(22), 1325000, 0x03006000},
   { {1, 1}, 1836000, ACPU_SCPLL, 0, 0, 1, 0x22, L2(22), 1337500, 0x03006000},
-#endif
-#if 0
-  { {1, 1}, 1890000, ACPU_SCPLL, 0, 0, 1, 0x23, L2(19), 1350000, 0x03006000},
-  { {1, 1}, 1944000, ACPU_SCPLL, 0, 0, 1, 0x24, L2(19), 1362500, 0x03006000},
-  { {1, 1}, 1998000, ACPU_SCPLL, 0, 0, 1, 0x25, L2(19), 1375000, 0x03006000},
-  { {1, 1}, 2052000, ACPU_SCPLL, 0, 0, 1, 0x26, L2(19), 1400000, 0x03006000},
-#endif
+  { {1, 1}, 1890000, ACPU_SCPLL, 0, 0, 1, 0x23, L2(22), 1350000, 0x03006000},
+  { {1, 1}, 1944000, ACPU_SCPLL, 0, 0, 1, 0x24, L2(22), 1362500, 0x03006000},
+  { {1, 1}, 1998000, ACPU_SCPLL, 0, 0, 1, 0x25, L2(22), 1375000, 0x03006000},
+  { {1, 1}, 2052000, ACPU_SCPLL, 0, 0, 1, 0x26, L2(22), 1400000, 0x03006000},
   { {0, 0}, 0 },
 };
 #endif
@@ -860,6 +856,47 @@ out:
 	return rc;
 }
 
+#ifdef CONFIG_CPU_VOLTAGE_TABLE
+ssize_t acpuclk_get_vdd_levels_str(char *buf) {
+
+	int i, len = 0;
+
+	if (buf) {
+		mutex_lock(&drv_state.lock);
+
+		for (i = 0; acpu_freq_tbl[i].acpuclk_khz; i++) {
+			/* updated to use uv required by 8x60 architecture - faux123 */
+			len += sprintf(buf + len, "%8u: %8d\n", acpu_freq_tbl[i].acpuclk_khz, acpu_freq_tbl[i].vdd_sc );
+		}
+
+		mutex_unlock(&drv_state.lock);
+	}
+	return len;
+}
+
+/* updated to use uv required by 8x60 architecture - faux123 */
+void acpuclk_set_vdd(unsigned int khz, int vdd_uv) {
+
+	int i;
+	unsigned int new_vdd_uv;
+
+	mutex_lock(&drv_state.lock);
+
+	for (i = 0; acpu_freq_tbl[i].acpuclk_khz; i++) {
+		if (khz == 0)
+			new_vdd_uv = min(max((acpu_freq_tbl[i].vdd_sc + vdd_uv), (unsigned int)MIN_VDD_SC), (unsigned int)MAX_VDD_SC);
+		else if ( acpu_freq_tbl[i].acpuclk_khz == khz)
+			new_vdd_uv = min(max((unsigned int)vdd_uv, (unsigned int)MIN_VDD_SC), (unsigned int)MAX_VDD_SC);
+		else
+			continue;
+
+		acpu_freq_tbl[i].vdd_sc = new_vdd_uv;
+	}
+
+	mutex_unlock(&drv_state.lock);
+}
+#endif	/* CONFIG_CPU_VOTALGE_TABLE */
+
 static void __init scpll_init(int pll, unsigned int max_l_val)
 {
 	uint32_t regval;
@@ -878,11 +915,7 @@ static void __init scpll_init(int pll, unsigned int max_l_val)
 	udelay(10);
 
 	/* Calibrate the SCPLL for the frequency range needed. */
-#ifdef CONFIG_MACH_SEMC_NOZOMI_OC_NO
 	regval = (max_l_val << 24) | (L_VAL_SCPLL_CAL_MIN << 16);
-#else
-	regval = (max_l_val << 30) | (L_VAL_SCPLL_CAL_MIN << 16);
-#endif
 	writel_relaxed(regval, sc_pll_base[pll] + SCPLL_CAL_OFFSET);
 
 	/* Start calibration */
@@ -982,10 +1015,10 @@ static void __init bus_init(void)
 
 #ifdef CONFIG_CPU_FREQ_MSM
 
-#ifndef CONFIG_MACH_SEMC_NOZOMI_OC_ULTRA
+#ifdef CONFIG_MACH_SEMC_NOZOMI_OC_NO
 #define FREQ_TABLE_SIZE 30
 #else
-#define FREQ_TABLE_SIZE 33
+#define FREQ_TABLE_SIZE 35
 #endif
 
 static struct cpufreq_frequency_table freq_table[NR_CPUS][FREQ_TABLE_SIZE];
@@ -1159,7 +1192,11 @@ static int __init acpuclk_8x60_probe(struct platform_device *pdev)
 
 	/* Improve boot time by ramping up CPUs immediately. */
 	for_each_online_cpu(cpu)
+#ifndef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
 		acpuclk_8x60_set_rate(cpu, max_freq->acpuclk_khz, SETRATE_INIT);
+#else
+		acpuclk_8x60_set_rate(cpu, CONFIG_MSM_CPU_FREQ_MAX, SETRATE_INIT);
+#endif
 
 	acpuclk_register(&acpuclk_8x60_data);
 	cpufreq_table_init();
