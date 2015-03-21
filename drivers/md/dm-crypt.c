@@ -1022,10 +1022,6 @@ static void kcryptd_queue_io(struct dm_crypt_io *io)
 	queue_work(cc->io_queue, &io->work);
 }
 
-#ifdef CONFIG_INTELLI_PLUG
-		intelli_plug_perf_boost(false);
-#endif
-
 static void kcryptd_crypt_write_io_submit(struct dm_crypt_io *io, int async)
 {
 	struct bio *clone = io->ctx.bio_out;
