@@ -312,12 +312,6 @@ lmf_screen_state = true;
 
 }
 
-static struct early_suspend msm_cpu_early_suspend_handler = {
-.level = EARLY_SUSPEND_LEVEL_BLANK_SCREEN,
-.suspend = msm_cpu_early_suspend,
-.resume = msm_cpu_late_resume,
-};
-
 static int __cpuinit msm_cpufreq_cpu_callback(struct notifier_block *nfb,
 		unsigned long action, void *hcpu)
 {
