@@ -43,7 +43,7 @@ EXPORT_SYMBOL(msm_vol_ctl);
 static struct snd_kcontrol_new snd_msm_controls[];
 
 char snddev_name[AUDIO_DEV_CTL_MAX_DEV][44];
-#define MSM_MAX_VOLUME 0x2400
+#define MSM_MAX_VOLUME 0x2000
 #define MSM_VOLUME_STEP ((MSM_MAX_VOLUME+17)/100) /* 17 added to avoid
 						      more deviation */
 static int device_index; /* Count of Device controls */
@@ -1282,7 +1282,6 @@ static const char * const voice_rx[] = {
     "handset", 
     "speaker", 
     "headset", 
-    "speaker-and-headset",
     "bt-sco-headset", 
     "voice-tty-headset",
 };
@@ -1291,14 +1290,10 @@ static const char * const voice_tx[] = {
     "speaker-mic", 
     "headset-mic", 
     "bt-sco-mic", 
-    "voice-dmic-ef",
-    "voice-dmic-bs",
-    "voice-speaker-dmic-ef",
-    "voice-speaker-dmic-bs",
     "voice-tty-headset-mic",
 };
-static int voice_rx_dev_id[] = { 0, 3, 6, 10, 29, 8, };
-static int voice_tx_dev_id[] = { 1, 5, 4, 30, 16, 16, 17, 17, 7 };
+static int voice_rx_dev_id[] = { 0, 2, 6, 29, 8, };
+static int voice_tx_dev_id[] = { 1, 5, 4, 30, 7, };
 
 static int msm_voice_get_rx(struct snd_kcontrol *kcontrol,
 			struct snd_ctl_elem_value *ucontrol)

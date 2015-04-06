@@ -386,8 +386,13 @@ static struct regulator_init_data saw_s0_init_data = {
 		.constraints = {
 			.name = "8901_s0",
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
+#ifdef CONFIG_MACH_SEMC_NOZOMI_OC_NO
+			.min_uV = 800000,
+			.max_uV = 1325000,
+#else
 			.min_uV = 775000,
 			.max_uV = 1400000,
+#endif
 		},
 		.consumer_supplies = vreg_consumers_8901_S0,
 		.num_consumer_supplies = ARRAY_SIZE(vreg_consumers_8901_S0),
@@ -397,8 +402,13 @@ static struct regulator_init_data saw_s1_init_data = {
 		.constraints = {
 			.name = "8901_s1",
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
+#ifdef CONFIG_MACH_SEMC_NOZOMI_OC_NO
+			.min_uV = 800000,
+			.max_uV = 1325000,
+#else
 			.min_uV = 775000,
 			.max_uV = 1400000,
+#endif
 		},
 		.consumer_supplies = vreg_consumers_8901_S1,
 		.num_consumer_supplies = ARRAY_SIZE(vreg_consumers_8901_S1),
@@ -2366,13 +2376,13 @@ unsigned char hdmi_is_primary;
 #endif
 
 #ifdef CONFIG_FB_MSM_OVERLAY0_WRITEBACK
-#define MSM_FB_OVERLAY0_WRITEBACK_SIZE roundup((1280 * 720 * 3 * 3), 4096)
+#define MSM_FB_OVERLAY0_WRITEBACK_SIZE round_up((1280 * 720 * 3 * 3), 4096)
 #else
 #define MSM_FB_OVERLAY0_WRITEBACK_SIZE (0)
 #endif  /* CONFIG_FB_MSM_OVERLAY0_WRITEBACK */
 
 #ifdef CONFIG_FB_MSM_OVERLAY1_WRITEBACK
-#define MSM_FB_OVERLAY1_WRITEBACK_SIZE roundup((1920 * 1080 * 3 * 3), 4096)
+#define MSM_FB_OVERLAY1_WRITEBACK_SIZE round_up((1920 * 1080 * 3 * 3), 4096)
 #else
 #define MSM_FB_OVERLAY1_WRITEBACK_SIZE (0)
 #endif  /* CONFIG_FB_MSM_OVERLAY1_WRITEBACK */
@@ -2422,11 +2432,7 @@ unsigned char hdmi_is_primary;
 #define MSM_ION_SF_SIZE                0x7000000 /* 112MB */
 #define MSM_ION_CAMERA_SIZE     0x5000000 /*80MB*/
 
-#ifdef CONFIG_FB_MSM_OVERLAY1_WRITEBACK
-#define MSM_ION_WB_SIZE		0x19B6000
-#else
-#define MSM_ION_WB_SIZE		0x7E9000
-#endif
+#define MSM_ION_WB_SIZE		MSM_FB_OVERLAY1_WRITEBACK_SIZE
 
 #ifdef CONFIG_QSEECOM
 #define MSM_ION_QSECOM_SIZE	0x300000 /* (3MB) */
@@ -3525,8 +3531,13 @@ static struct regulator_consumer_supply vreg_consumers_PM8058_S1[] = {
 /* RPM early regulator constraints */
 static struct rpm_regulator_init_data rpm_regulator_early_init_data[] = {
 	/*	 ID       a_on pd ss min_uV   max_uV   init_ip    freq */
+#ifdef CONFIG_MACH_SEMC_NOZOMI_OC_NO
+	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1325000, SMPS_HMIN, 1p60),
+	RPM_SMPS(PM8058_S1, 0, 1, 1,  500000, 1250000, SMPS_HMIN, 1p60),
+#else
 	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1400000, SMPS_HMIN, 1p60),
 	RPM_SMPS(PM8058_S1, 0, 1, 1,  500000, 1400000, SMPS_HMIN, 1p60),
+#endif
 };
 
 static struct rpm_regulator_platform_data rpm_regulator_early_pdata = {
@@ -8020,6 +8031,8 @@ static struct msm_panel_common_pdata mdp_pdata = {
 	.mem_hid = MEMTYPE_EBI1,
 #endif
 	.mdp_iommu_split_domain = 0,
+	.ov0_wb_hid = BIT(ION_CP_MM_HEAP_ID),
+	.ov1_wb_hid = BIT(ION_CP_WB_HEAP_ID),
 };
 
 static void __init reserve_mdp_memory(void)

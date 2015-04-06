@@ -833,11 +833,6 @@ config MACH_SEMC_NOZOMI_OC_NO
         help
           Standard clocking for Sony Ericsson Nozomi device
 
-config MACH_SEMC_NOZOMI_OC_STANDARD
-        bool "SEMC Nozomi OC"
-        help
-          Overclocking for the Sony Ericsson Nozomi device
-
 config MACH_SEMC_NOZOMI_OC_ULTRA
         bool "SEMC Nozomi OC ULTRA"
         help
@@ -1688,7 +1683,6 @@ config MSM_CPU_FREQ_MIN
 	default 245760
 
 endif # CPU_FREQ_MSM
-
 
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
