@@ -48,11 +48,12 @@
 
 #ifdef CONFIG_MACH_SEMC_NOZOMI_OC_NO
 #define MAX_VDD_SC		1325000 /* uV */
+#define MIN_VDD_SC		 775000 /* uV */
 #define MAX_VDD_MEM		1325000 /* uV */
 #else
-#define MAX_VDD_SC              1400000 /* uV */
-#define MIN_VDD_SC               775000 /* uV */
-#define MAX_VDD_MEM             1400000 /* uV */
+#define MAX_VDD_SC		1400000 /* uV */
+#define MIN_VDD_SC		 775000 /* uV */
+#define MAX_VDD_MEM		1400000 /* uV */
 #endif
 #define MAX_VDD_DIG		1200000 /* uV */
 #define MAX_AXI			 310500 /* KHz */
